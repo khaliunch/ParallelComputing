@@ -7,6 +7,7 @@
 void grayscale(int height, int width, RGBTRIPLE image[height][width])
 {
     int i, j;
+    int red, green, blue, ave;
     int thread_id;
     #pragma omp parallel for collapse(2)
     for (i = 0; i < height; i++)
@@ -14,12 +15,11 @@ void grayscale(int height, int width, RGBTRIPLE image[height][width])
         for (j = 0; j < width; j++)
         {
             printf("Grayscale image processing: i = %d, j= %d, threadId = %d \n", i, j, omp_get_thread_num());
-            int red = image[i][j].rgbtRed;
-            int green = image[i][j].rgbtGreen;
-            int blue = image[i][j].rgbtBlue;
+            red = image[i][j].rgbtRed;
+            green = image[i][j].rgbtGreen;
+            blue = image[i][j].rgbtBlue;
 
-            #pragma omp ordered
-            int ave = round((red + blue + green) / 3.0);
+            ave = round((red + blue + green) / 3.0);
             image[i][j].rgbtRed = ave;
             image[i][j].rgbtGreen = ave;
             image[i][j].rgbtBlue = ave;
@@ -40,7 +40,6 @@ void sepia(int height, int width, RGBTRIPLE image[height][width])
         for (j = 0; j < width; j++)
         {
             printf("Sepia image processing: i = %d, j= %d, threadId = %d \n", i, j, omp_get_thread_num());
-            #pragma omp ordered
             newRed = round(.393 * image[i][j].rgbtRed + .769 * image[i][j].rgbtGreen + .189 * image[i][j].rgbtBlue);
             newGreen = round(.349 * image[i][j].rgbtRed + .686 * image[i][j].rgbtGreen + .168 * image[i][j].rgbtBlue);
             newBlue = round(.272 * image[i][j].rgbtRed + .534 * image[i][j].rgbtGreen + .131 * image[i][j].rgbtBlue);
@@ -88,7 +87,7 @@ void reflect(int height, int width, RGBTRIPLE image[height][width])
         for (j = 0; j < width / 2; j++)
         {
             printf("Reflect image processing: i = %d, j= %d, threadId = %d \n", i, j, omp_get_thread_num());
-            #pragma omp ordered
+            
             tempRed = *&image[i][j].rgbtRed;
             tempGreen = *&image[i][j].rgbtGreen;
             tempBlue = *&image[i][j].rgbtBlue;
@@ -117,10 +116,11 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
         for (j = 0; j < width; j++)
         {
             printf("Blur tmp image processing: i = %d, j= %d, threadId = %d \n", i, j, omp_get_thread_num());
-            #pragma omp ordered
+            
             tmp[i][j] = image[i][j];
         }
     }
+
     int newRed, newGreen, newBlue;
     #pragma omp parallel for collapse(2)
     for (int i = 0; i < height; i++)
@@ -128,7 +128,7 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
         for (int j = 0; j < width; j++)
         {
             printf("Blur image processing 1st step: i = %d, j= %d, threadId = %d \n", i, j, omp_get_thread_num());
-            #pragma omp ordered
+            //#pragma omp ordered
             newRed = 0;
             newGreen = 0;
             newBlue = 0;
@@ -141,7 +141,7 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
                 for (int g = (j - 1); g <= (j + 1); g++)
                 {
                     printf("Blur image processing 2nd step: i = %d, j= %d, threadId = %d \n", i, j, omp_get_thread_num());
-                    #pragma omp ordered
+                    //#pragma omp ordered
                     if (k < 0 || g < 0 || k >= height || g >= width)
                     {
                     }
