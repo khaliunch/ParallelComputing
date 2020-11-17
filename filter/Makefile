@@ -1,2 +1,2 @@
-filter:
-	gcc filter.c helpers.c -o filter -fopenmp
+g++ -fopenmp -O3 -Wall -g filter.c helpers.c -o filter
+
